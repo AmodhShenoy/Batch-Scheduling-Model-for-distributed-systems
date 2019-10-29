@@ -1,6 +1,8 @@
 import random
+import math 
 
 def get_time_vec(sol,etc):
+	print(sol)
 	time_vec = [0 for _ in range(len(etc))]
 	for i in range(len(sol)):
 		time_vec[sol[i]] += etc[sol[i]][i]
@@ -35,6 +37,7 @@ def BFO(pop,etc):
 		for i in range(len(pop)):
 			#tumble and move
 			for _ in range(nc):
+				print(pop[i])
 				time_vec = get_time_vec(pop[i],etc)
 				max_node = time_vec.index(max(time_vec))
 				min_node = time_vec.index(min(time_vec))
@@ -53,10 +56,26 @@ def BFO(pop,etc):
 			pop[i].pop()
 
 		#reproduce
+		step = math.ceil(len(pop)/2)
+		for i in range(step,len(pop)):
+			pop[i] = pop[i-step]
+		random.shuffle(pop)
 		
-		
-		#eliminate
-		pass
+		#eliminate and replace
+		for _ in range(int(len(pop)*ped)):
+			pop.pop(int(random.random()*len(pop)))
+		for _ in range(int(len(pop)*ped)):
+			l = []
+			for _ in range(len(pop[0])):
+				l.append(int(random.random()*m))
+
+	for i in range(len(pop)):
+		pop[i].append(makespan(pop[i],etc))
+
+	pop.sort(key=mkspn_sort)
+	return pop[0][:-1]
+
+
 
 def main():
 	#loading the speed vector
