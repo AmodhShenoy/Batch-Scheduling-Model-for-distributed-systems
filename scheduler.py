@@ -12,6 +12,7 @@ def makespan(sol,etc):
 	return max(get_time_vec(sol,etc))
 
 def utilization(sol,etc):
+	m = len(etc)
 	time_vec = get_time_vec(sol,etc)
 	mspan = max(time_vec)
 	mpat = sum(time_vec)/m
@@ -23,21 +24,40 @@ def GA(pop,n,m):
 def mkspn_sort(elem):
 	return elem[-1]
 
+def sort_pop(pop,etc):
+	# print("Before sort:")
+	# for i in range(len(pop)):
+	# 	print(pop[i])
+	for i in range(len(pop)):
+		mkspn = makespan(pop[i],etc)
+		pop[i].append(mkspn)
+	pop.sort(key=mkspn_sort)
+	for i in range(len(pop)):
+		pop[i].pop()
+	# print("After sort:")
+	# for i in pop:
+	# 	print(i)
+	return pop
+
+
 def BFO(pop,etc):
 	#Setting algorithm constraints
 	m = len(etc)
 	n = len(etc[0])
 	S = len(pop)
-	ned = 3 		#no of elimination steps
-	nc  = 3			#no of chemotaxis steps
+	ned = 30 		#no of elimination steps
+	nc  = 30			#no of chemotaxis steps
 	ped = 0.5		#probability of bacteria elimination
 
-	for _ in range(ned):
-		
+	for df in range(ned):
+		print(df)
+		#chemotaxis
+		# print("Before chemotaxis")
+		# for i in pop:
+		# 	print(i)
 		for i in range(len(pop)):
 			#tumble and move
 			for _ in range(nc):
-				print(pop[i])
 				time_vec = get_time_vec(pop[i],etc)
 				max_node = time_vec.index(max(time_vec))
 				min_node = time_vec.index(min(time_vec))
@@ -50,29 +70,44 @@ def BFO(pop,etc):
 					if etc[max_node][t]<etc[max_node][tumbler]:
 						tumbler = t
 				pop[i][tumbler] = min_node
-			pop[i].append(makespan(pop[i],etc))
-		pop.sort(key=mkspn_sort)
-		for i in range(len(pop)):
-			pop[i].pop()
+		pop = sort_pop(pop,etc)
+		print('----------------------------------')
+	
 
 		#reproduce
-		step = math.ceil(len(pop)/2)
-		for i in range(step,len(pop)):
-			pop[i] = pop[i-step]
-		random.shuffle(pop)
-		
-		#eliminate and replace
-		for _ in range(int(len(pop)*ped)):
-			pop.pop(int(random.random()*len(pop)))
-		for _ in range(int(len(pop)*ped)):
-			l = []
-			for _ in range(len(pop[0])):
-				l.append(int(random.random()*m))
+		pop = pop[:int(math.ceil(len(pop)/2))] + pop[:int(math.ceil(len(pop)/2))]
+		for i in pop:
+			print(i) 
 
-	for i in range(len(pop)):
-		pop[i].append(makespan(pop[i],etc))
 
-	pop.sort(key=mkspn_sort)
+
+
+
+		# step = math.ceil(len(pop)/2)
+		# for i in range(step,len(pop)):
+		# 	pop[i] = pop[i-step]
+		# random.shuffle(pop)
+
+
+
+
+
+
+
+	# 	print("Done reproducing")
+
+	# 	#eliminate and replace
+	# 	for _ in range(int(len(pop)*ped)):
+	# 		pop.pop(int(random.random()*len(pop)))
+	# 	for _ in range(int(len(pop)*ped)):
+	# 		l = []
+	# 		for _ in range(len(pop[0])):
+	# 			l.append(int(random.random()*m))
+	# 	print("Done eliminate")
+	# for i in range(len(pop)):
+	# 	pop[i].append(makespan(pop[i],etc))
+
+	# pop.sort(key=mkspn_sort)
 	return pop[0][:-1]
 
 
@@ -107,8 +142,8 @@ def main():
 	sol_bfo = BFO(pop,etc)
 	print("Solution from BFO algorithm:")
 	print(sol_bfo)
-	print("Makespan:",makespan(sol,etc))
-	print("Utilization:",utilization(sol,etc),"\n")
+	print("Makespan:",makespan(sol_bfo,etc))
+	print("Utilization:",utilization(sol_bfo,etc),"\n")
 
 	# #running GA algorithm
 	# sol_ga = GA(pop,n,m)
