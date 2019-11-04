@@ -2,7 +2,6 @@ import random
 import math 
 
 def get_time_vec(sol,etc):
-	print(sol)
 	time_vec = [0 for _ in range(len(etc))]
 	for i in range(len(sol)):
 		time_vec[sol[i]] += etc[sol[i]][i]
@@ -17,8 +16,63 @@ def utilization(sol,etc):
 	mpat = sum(time_vec)/m
 	return mpat/mspan
 
-def GA(pop,n,m):
-	pass
+#for GA
+def reset(pop):
+	for i in pop:
+			i.pop(-1)
+	return pop
+
+#for GA
+def calcAndSort(pop,etc):
+	for i in pop:
+			i.append(makespan(i,etc))
+		
+	pop.sort(key=lambda x:x[-1])
+	return pop
+
+def p(pop):
+	for i in pop:
+		print(i)
+
+def GA(pop,etc,n,m):
+	genes="01234"
+	newgen=[]
+	count=1
+
+	while count!=len(newgen):
+		newgen=[]
+		
+		#generation of makespan for each solution and then sorting(asc)
+		pop=calcAndSort(pop,etc)
+
+		#selection
+		selected=math.ceil(len(pop)/2)
+		pop=pop[:selected]
+
+		pop=reset(pop)
+
+		#crossover
+		for _ in range(m*2):
+			parent1=random.choice(pop)
+			parent2=random.choice(pop)
+			cp1=random.randint(0,n-1)
+			cp2=random.randint(0,n-1)
+			maxCp=max(cp1,cp2)
+			minCp=min(cp1,cp2)
+			child1=parent1[:minCp]+parent2[minCp:maxCp]+parent1[maxCp:]
+			#mutation
+			mpoint=random.randint(0,n-1)
+			child1[mpoint]=int(random.choice(genes))
+			child2=parent2[:minCp]+parent1[minCp:maxCp]+parent2[maxCp:]
+			newgen.extend([child1,child2])
+
+		select=len(newgen)-(count-1)
+		newgen=newgen[:select]
+		pop.extend(newgen)
+		count+=1
+	
+	pop[0].append(makespan(pop[0],etc))
+	return pop[0]
 
 def mkspn_sort(elem):
 	return elem[-1]
@@ -100,26 +154,27 @@ def main():
 	for _ in range(S):
 		l=[]
 		for _ in range(n):
-			l.append(int(random.random()*m))
+			l.append(random.randint(0,m-1))
 		pop.append(l)
 
 	#running BFO algorithm
-	sol_bfo = BFO(pop,etc)
-	print("Solution from BFO algorithm:")
-	print(sol_bfo)
-	print("Makespan:",makespan(sol,etc))
-	print("Utilization:",utilization(sol,etc),"\n")
+	#sol_bfo = BFO(pop,etc)
+	#print("Solution from BFO algorithm:")
+	#print(sol_bfo)
+	#print("Makespan:",makespan(sol,etc))
+	#print("Utilization:",utilization(sol,etc),"\n")
 
-	# #running GA algorithm
-	# sol_ga = GA(pop,n,m)
-	# print("Solution from GA algorithm:")
-	# print(sol_ga)
+	#running GA algorithm
+	sol_ga = GA(pop,etc,n,m)
+	print("Solution from GA algorithm:")
+	print(sol_ga,"\n")
 	# print("Makespan:",makespan(sol,etc))
 	# print("Utilization:",utilization(sol,etc),"\n")
 
 
 	for i in pop:
 		print(i)
+	print("above is to be the pop at the end of main.\n")
 
 if __name__=='__main__':
 	main()
